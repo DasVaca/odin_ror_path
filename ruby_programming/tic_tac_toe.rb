@@ -60,12 +60,10 @@ class Board
   end
 
   def mark_cell(pos, symb)
-    row, col = *(pos == 0 ? pos: pos-1).divmod(3)
-    begin
-      board[row][col] = symb
-    rescue NoMethodError
-      puts "Out of bounds: Location (#{pos}) does not exists."
-    end
+    raise ArgumentError.new("Out of bounds: Location (#{pos}) does not exists.") unless pos.between?(1, 9) 
+
+    row, col = (pos - 1).divmod(3)
+    board[row][col] = symb
   end
 
 end
@@ -96,10 +94,15 @@ class Game
       puts "#{curr_player[:name]} is playing with symbol #{curr_player[:symbol]}."
       board.show
 
-      print "Position to mark: "
-      position = gets.chomp.to_i
-
-      board.mark_cell(position, curr_player[:symbol])
+      begin
+        print "Position to mark: "
+        position = gets.chomp.to_i
+        board.mark_cell(position, curr_player[:symbol])
+      rescue ArgumentError => e
+        puts e
+        puts "Please enter a valid position."
+        retry
+      end
 
       turn += 1
     end
