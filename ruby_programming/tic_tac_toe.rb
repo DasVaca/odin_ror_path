@@ -3,54 +3,48 @@ class Board
   EMPTY = ' '
   VSEP = '|'
 
-  attr_reader :board
+  attr_reader :board, :winner
 
   def initialize
     @board = Array.new(3) { Array.new(3, EMPTY) }
+    @winner = nil
   end
 
   def empty?
-    board.flatten.select { |c| c != EMPTY}.count == 0
+    board.flatten.any? { |c| c != EMPTY}
   end
 
-  def win_horizontal
-    winner_symb = nil
+  def full?
+    board.flatten.all? { |c| c != EMPTY}
+  end
 
+  def win_horizontal?
     for i in 0...3 
       next if board[i][0] == EMPTY
 
-      if board[i].all? { |cell| cell == board[i][0]}
-        winner_symb = board[i][0]
-        break
-      end
+      return true if board[i].all? { |cell| cell == board[i][0]}
     end
-
-    winner_symb
+    return false
   end
 
-  def win_diagonally
+  def win_diagonally?
     won_main = [board[0][0], board[1][1]].all? { |c| c ==  board[2][2] }
     won_alte = [board[0][2], board[1][1]].all? { |c| c ==  board[2][0] }
-    (board[1][1] != EMPTY && (won_main || won_alte)) ? board[1][1]: nil
+    
+    (board[1][1] != EMPTY && (won_main || won_alte))
   end
 
-  def win_vertically
-    winner_symb = nil
-
+  def win_vertically?
     for i in 0...3
       next if board[0][i] == EMPTY
 
-      if [board[0][i], board[1][i]].all? { |c| c == board[2][i] }
-        winner_symb = board[0][i]
-        break
-      end
+      return true if [board[0][i], board[1][i]].all? { |c| c == board[2][i] }
     end
-
-    winner_symb
+    return false
   end
 
   def winner?
-    win_horizontal || win_diagonally || win_vertically 
+    win_horizontal? || win_diagonally? || win_vertically? 
   end
   
   def show
@@ -87,12 +81,10 @@ class Game
     turn = 0
 
     loop do
-      break if board.winner?
-
       curr_player = players[turn % 2]
-      
-      puts "#{curr_player[:name]} is playing with symbol #{curr_player[:symbol]}."
+
       board.show
+      puts "#{curr_player[:name]} is playing with symbol #{curr_player[:symbol]}."
 
       begin
         print "Position to mark: "
@@ -105,17 +97,33 @@ class Game
       end
 
       turn += 1
+
+      break if board.winner? || board.full?
     end
 
     puts "Game ended."
+
+    if board.winner?
+      winner = players[(turn + 1) % 2] 
+      puts "Winner is #{winner[:name]}"
+    else
+      puts "No winners!"
+    end
   end
 
   def get_player
-    print "Name: "
-    name = gets.chomp
-    
-    print "Symbol: "
-    symbol = gets.chomp
+    name, symbol  = nil, nil
+    loop do
+      puts "Name should not be empty and symbol has to be one letter"
+
+      print "Name: "
+      name = gets.chomp
+      
+      print "Symbol: "
+      symbol = gets.chomp
+
+      break if name.length > 0 and symbol.length == 1
+    end
 
     {name: name, symbol: symbol}
   end
