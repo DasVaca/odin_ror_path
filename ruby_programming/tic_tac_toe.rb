@@ -57,6 +57,9 @@ class Board
     raise ArgumentError.new("Out of bounds: Location (#{pos}) does not exists.") unless pos.between?(1, 9) 
 
     row, col = (pos - 1).divmod(3)
+
+    raise ArgumentError.new("Cell already marked") unless board[row][col] == EMPTY
+
     board[row][col] = symb
   end
 
