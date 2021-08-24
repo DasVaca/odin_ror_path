@@ -18,6 +18,8 @@ class Game
   end
 
   def play
+    show_instructions(S_RNRP, S_RNWP)
+
     code = generate_code
     for round in (1..@@rounds)
       guess = get_user_guess
@@ -29,6 +31,8 @@ class Game
 
       break if code == guess
     end
+
+    show_gameover code == guess
   end
 
   def generate_code
@@ -38,13 +42,16 @@ class Game
   end
 
   def get_feedback (code, guess)
-    right_number = 0
-    right_place = 0
+    rnrp = 0 # right number in right place
+    rnwp = 0 # right number in wrong place
     @@guess_size.times do |i|
-      right_place += (code[i] == guess[i] ? 1: 0)
-      right_number += (code.include?(guess[i]) ? 1: 0)
+      if code[i] == guess[i]
+        rnrp += 1
+      elsif code.include? guess[i]
+        rnwp += 1
+      end
     end
-    S_RNRP*right_place + S_RNWP*(right_number - right_place)
+    S_RNRP*rnrp + S_RNWP*(rnwp)
   end
 
   def valid? guess
@@ -56,6 +63,7 @@ class Game
     loop do
       print "Your guess: "
       guess = gets.chomp
+      exit if guess == 'q'
       break if valid? guess
       puts "Please enter a valid guess."
       puts "Must be #{@@guess_size} length and each digit moving between that range aswell."
