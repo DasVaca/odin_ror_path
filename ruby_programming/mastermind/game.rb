@@ -20,7 +20,7 @@ class Game
   def play
     show_instructions(S_RNRP, S_RNWP)
 
-    code = generate_code
+    code = get_code_data generate_code 
     for round in (1..@@rounds)
       guess = get_user_guess
       feedback = get_feedback(code, guess)
@@ -29,29 +29,46 @@ class Game
 
       show_game history
 
-      break if code == guess
+      break if code[:code].join == guess
     end
 
-    show_gameover code == guess
+    puts "The code was #{code[:code].join} and your last guess was #{guess}"
+    show_gameover code[:code].join == guess
   end
 
   def generate_code
-    code = "" 
-    @@guess_size.times { code << (rand(@@guess_size) + 1).to_s }
+    code = [] 
+    @@guess_size.times { code << (rand(@@guess_size) + 1)}
     code
   end
 
+  def get_code_data code
+    data = code.reduce(Hash.new(0)) do |r, d|
+      r[d] += 1
+      r
+    end
+    data[:code] = code
+    data
+  end
+
   def get_feedback (code, guess)
-    rnrp = 0 # right number in right place
-    rnwp = 0 # right number in wrong place
-    @@guess_size.times do |i|
-      if code[i] == guess[i]
-        rnrp += 1
-      elsif code.include? guess[i]
-        rnwp += 1
+    rnrp = Hash.new(0) # right number right place
+    rnwp = Hash.new(0) # right number wrong place
+    
+    guess.to_i.digits.reverse.each_with_index do |d, i|
+      if code[:code][i] == d 
+        code[d] -= 1
+        rnrp[d] += 1
+        rnwp[d] -= 1 if rnwp[d] > 0
+      elsif code[d] > rnwp[d]
+        rnwp[d] += 1
       end
     end
-    S_RNRP*rnrp + S_RNWP*(rnwp)
+    
+    rnrp = rnrp.reduce(0) {|sum, (k, v)| sum + v}
+    rnwp = rnwp.reduce(0) {|sum, (k, v)| sum + v}
+
+    S_RNRP*rnrp + S_RNWP*rnwp
   end
 
   def valid? guess
