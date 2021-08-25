@@ -1,4 +1,5 @@
 require_relative 'gameui'
+require_relative 'player'
 
 class Game
   
@@ -17,50 +18,67 @@ class Game
     @history = []
   end
 
+  def get_role
+    loop do
+      print %Q(
+      ¿What role do you want to play as?
+          1. breaker
+          2. maker
+      role:
+      )
+      role = gets.chomp.to_i
+
+      return role if [1, 2].include? role
+
+      puts "Please select a valid role."
+    end
+  end
+
   def play
     show_instructions(S_RNRP, S_RNWP)
+    breaker, maker = Human.new, Bot.new
+    
+    if get_role == 2
+      breaker, maker = maker, breaker
+    end
 
-    code = get_code_data generate_code 
+    code = maker.get_code @@guess_size
     for round in (1..@@rounds)
-      guess = get_user_guess
+      guess = breaker.get_guess @@guess_size
       feedback = get_feedback(code, guess)
       
       history << {guess: guess, feedback: feedback}
 
+      breaker.think history
+
       show_game history
 
-      break if code[:code].join == guess
+      break if code == guess
     end
 
-    puts "The code was #{code[:code].join} and your last guess was #{guess}"
-    show_gameover code[:code].join == guess
-  end
-
-  def generate_code
-    code = [] 
-    @@guess_size.times { code << (rand(@@guess_size) + 1)}
-    code
+    puts "The code was #{code} and the last guess was #{guess}"
+    show_gameover code == guess
   end
 
   def get_code_data code
-    data = code.reduce(Hash.new(0)) do |r, d|
+    data = code.to_i.digits.reduce(Hash.new(0)) do |r, d|
       r[d] += 1
       r
     end
-    data[:code] = code
     data
   end
 
   def get_feedback (code, guess)
     rnrp = Hash.new(0) # right number right place
     rnwp = Hash.new(0) # right number wrong place
+    digits = get_code_data code
     
     guess.to_i.digits.reverse.each_with_index do |d, i|
-      if code[:code][i] == d 
-        code[d] -= 1
+      if code[i].to_i == d 
+        digits[d] -= 1
         rnrp[d] += 1
         rnwp[d] -= 1 if rnwp[d] > 0
-      elsif code[d] > rnwp[d]
+      elsif digits[d] > rnwp[d]
         rnwp[d] += 1
       end
     end
@@ -69,23 +87,6 @@ class Game
     rnwp = rnwp.reduce(0) {|sum, (k, v)| sum + v}
 
     S_RNRP*rnrp + S_RNWP*rnwp
-  end
-
-  def valid? guess
-    guess.to_i.digits.size == @@guess_size and guess.to_i.digits.all? { |d| d.between?(1, @@guess_size)}
-  end
-
-  def get_user_guess
-    guess = nil
-    loop do
-      print "Your guess: "
-      guess = gets.chomp
-      exit if guess == 'q'
-      break if valid? guess
-      puts "Please enter a valid guess."
-      puts "Must be #{@@guess_size} length and each digit moving between that range aswell."
-    end
-    guess
   end
 end
 
