@@ -1,5 +1,6 @@
 require 'csv'
 require 'erb'
+require 'time'
 require 'google/apis/civicinfo_v2'
 
 def clean_phonenumber phonenumber
@@ -43,6 +44,10 @@ def save_letter(id, letter)
   end 
 end
 
+def get_date(datestr)
+  Time.strptime(datestr, "%Y/%d/%m %k:%M") {|y| y + 2000}
+end
+
 puts "EventManager initialized"
 
 contents = CSV.open(
@@ -54,16 +59,20 @@ contents = CSV.open(
 template_letter = File.read('form_letter.erb')
 erb_template = ERB.new template_letter
 
-contents.each do |row|
-  id = row[0]
-  name = row[:first_name]
-  phonenumber = clean_phonenumber row[:homephone]
+reg_hours = Hash.new(0)
 
-  puts "#{row[:homephone]} - #{phonenumber}"
+contents.each do |row|
+  #id = row[0]
+  #name = row[:first_name]
+  #phonenumber = clean_phonenumber row[:homephone]
   #zipcode = clean_zipcode(row[:zipcode])
   #legislators = legislators_by_zipcode(zipcode)
-  
+  reg_hours[get_date(row[:regdate]).hour] += 1
   #form_letter = erb_template.result(binding) 
 
   #save_letter(id, form_letter)
 end
+
+hot_hours = reg_hours.sort_by { |k, v| v }.reverse.map {|hour, count| hour}
+
+puts "The 3 best hours for advertisement are #{hot_hours.first(3)}"
