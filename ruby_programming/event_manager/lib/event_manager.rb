@@ -11,7 +11,7 @@ def clean_phonenumber phonenumber
     else
       number = '0'*10
     end
-  elsif number.length < 10
+  elsif number.length < 10 or number.length > 11
     number = '0'*10
   end
 
