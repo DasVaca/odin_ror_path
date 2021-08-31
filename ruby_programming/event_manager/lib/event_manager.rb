@@ -5,12 +5,8 @@ require 'google/apis/civicinfo_v2'
 def clean_phonenumber phonenumber
   number = phonenumber.to_s.gsub(/\D/, '')
 
-  if number.length == 11
-    if number[0] == '1'
-      number.slice!(1..10)
-    else
-      number = '0'*10
-    end
+  if number.length == 11 and number[0] == '1'
+    number = number.slice(1..10)
   elsif number.length < 10 or number.length > 11
     number = '0'*10
   end
@@ -62,10 +58,12 @@ contents.each do |row|
   id = row[0]
   name = row[:first_name]
   phonenumber = clean_phonenumber row[:homephone]
-  zipcode = clean_zipcode(row[:zipcode])
-  legislators = legislators_by_zipcode(zipcode)
-  
-  form_letter = erb_template.result(binding) 
 
-  save_letter(id, form_letter)
+  puts "#{row[:homephone]} - #{phonenumber}"
+  #zipcode = clean_zipcode(row[:zipcode])
+  #legislators = legislators_by_zipcode(zipcode)
+  
+  #form_letter = erb_template.result(binding) 
+
+  #save_letter(id, form_letter)
 end
