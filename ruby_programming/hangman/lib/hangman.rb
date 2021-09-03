@@ -13,18 +13,22 @@ class Game
     @guesses = []
   end
 
-  def play
-    guessed = false
+  def show_game
+    puts "-"*20
+    puts "#{secret_word.map {|c| guesses.include?(c) ? c: '_'}.join(' ')}"
+    puts "You have #{secret_word.length - misses.length} misses left."
+    puts "Your misses: #{misses.sort.join(', ')}"
+  end
 
-    print "Got saved games? (y/n): "
+  def play
+    print "¿Want to restore a previous game? (y/n): "
     load_game if gets.chomp == 'y'
 
     puts "Press ':s' save the game and ':q' to exit (':sq' for both)."
+
+    guessed = false
     until guessed || misses.length >= secret_word.length 
-      puts "-"*20
-      puts "#{secret_word.map {|c| guesses.include?(c) ? c: '_'}.join(' ')}"
-      puts "You have #{secret_word.length - misses.length} misses left."
-      puts "Your misses: #{misses.sort.join(', ')}"
+      show_game
 
       guess = nil
       loop do
@@ -86,18 +90,26 @@ class Game
   end
 
   def load_game
-    return nil unless Dir.exists?(@@mem_card_path)
+    unless Dir.exists?(@@mem_card_path)
+      puts "No game data found."
+      return nil
+    end
 
     games = Dir.children(@@mem_card_path)
 
     puts "I found this in the memory, please select one."
+    puts "press 'c' to cancel."
     games.each_with_index { |game, i| puts "#{i}. #{game}"}
     
-    load_i = -1
-    until load_i.between?(0, games.length-1)
+    input = -1 
+    until input.to_i.between?(0, games.length-1)
       print "> "
-      load_i = gets.chomp.to_i
+      input = gets.chomp.downcase
+
+      return if input == 'c'
     end
+
+    load_i = input.to_i
     
     path = File.join(@@mem_card_path, games[load_i])
     game_data = MessagePack.load IO.read(path)
