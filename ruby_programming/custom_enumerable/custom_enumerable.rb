@@ -76,4 +76,28 @@ So there's not overcharge and hopefully best performance.
       self.size
     end
   end
+
+  def my_map
+    crash? block_given?
+
+    mapped = []
+    self.my_each do |item|
+      v = yield item
+      mapped << v
+    end
+
+    mapped
+  end
+
+  def my_inject (initial_val=nil)
+    crash? block_given?
+
+    acum = initial_val || self.first
+
+    self.my_each do |item|
+      acum = yield acum, item
+    end
+    
+    acum
+  end
 end
