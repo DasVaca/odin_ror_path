@@ -77,12 +77,17 @@ So there's not overcharge and hopefully best performance.
     end
   end
 
-  def my_map
-    crash? block_given?
-
+  def my_map (&proc_block)
+    raise ArgumentError.new("No block or proc given") unless block_given? and proc_block
     mapped = []
     self.my_each do |item|
-      v = yield item
+      v = nil
+      if proc_block 
+        v = proc_block.call(item)
+      elsif block_given? 
+        v = yield item
+      end
+
       mapped << v
     end
 
