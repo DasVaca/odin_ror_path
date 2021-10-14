@@ -92,9 +92,13 @@ So there's not overcharge and hopefully best performance.
   def my_inject (initial_val=nil)
     crash? block_given?
 
-    acum = initial_val || self.first
+    acum = initial_val 
 
-    self.my_each do |item|
+    self.my_each_with_index do |item, i|
+      unless acum 
+        acum = self.first
+        next
+      end
       acum = yield acum, item
     end
     
