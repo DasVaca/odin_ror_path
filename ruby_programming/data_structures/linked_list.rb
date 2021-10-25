@@ -22,6 +22,36 @@ class LinkedList
     @size += 1
   end
 
+  def insert_at(value, index)
+    if index <= 0
+      self.preppend(value)
+    elsif index >= @size
+      self.append(value)
+    else
+      prev = self.at(index-1)
+      node = self.at(index)
+      
+      new_node = Node.new(value)
+      new_node.next_node = node
+      prev.next_node = new_node 
+
+      @size += 1
+    end
+  end
+
+  def remove_at(index)
+    if index == 0
+      @first = @first.next_node
+    elsif index >= @size-2
+      self.pop
+    else
+      prev_node = self.at(index-1)
+      next_node = self.at(index+1)
+      prev_node.next_node = next_node
+      @size -= 1
+    end
+  end
+
   def append(value)
     if @size == 0
       self.init(value)
@@ -78,8 +108,10 @@ class LinkedList
   end
 
   def pop
-    second_last = self.at(@size-1)
+    second_last = self.at(@size-2)
     second_last.next_node = nil
+    @last = second_last
+    @size -= 1
   end
 
   def contains?(value)
@@ -103,21 +135,40 @@ end
 list = LinkedList.new
 puts list.to_s
 
+puts "#Append 2"
 list.append(2)
 puts list.to_s
-puts "Head: #{list.head.value}, Tail: #{list.tail.value}, Size: #{list.size}"
+puts " Head: #{list.head.value}, Tail: #{list.tail.value}, Size: #{list.size}"
 
+puts "#Append 3"
 list.append(3)
 puts list.to_s
-puts "Head: #{list.head.value}, Tail: #{list.tail.value}, Size: #{list.size}"
+puts " Head: #{list.head.value}, Tail: #{list.tail.value}, Size: #{list.size}"
 
+puts "#Preppend 1"
 list.preppend(1)
 puts list.to_s
-puts "Head: #{list.head.value}, Tail: #{list.tail.value}, Size: #{list.size}"
+puts " Head: #{list.head.value}, Tail: #{list.tail.value}, Size: #{list.size}"
 
+puts "#Pop"
 list.pop
+puts list.to_s
+puts " Head: #{list.head.value}, Tail: #{list.tail.value}, Size: #{list.size}"
+
+puts "Contains 2? #{list.contains?(2)}"
+puts "Find 2 at index #{list.find(2)}"
+
+puts "#RemoveAt 2"
+list.remove_at(1)
+puts list.to_s
+puts " Head: #{list.head.value}, Tail: #{list.tail.value}, Size: #{list.size}"
+
+puts "#InsertAt 2 the value of 3"
+list.insert_at(3, 2)
 puts list.to_s
 puts "Head: #{list.head.value}, Tail: #{list.tail.value}, Size: #{list.size}"
 
-puts "Contains 3? #{list.contains?(3)}"
-puts "Find 3 at index #{list.find(3)}"
+puts "#InsertAt 1 the value of 2"
+list.insert_at(2, 1)
+puts list.to_s
+puts "Head: #{list.head.value}, Tail: #{list.tail.value}, Size: #{list.size}"
