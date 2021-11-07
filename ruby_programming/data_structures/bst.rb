@@ -71,10 +71,57 @@ class Tree
       end
     end
   end
+
+  def direct_leaves(node)
+    "" + "L"*(_to_i(node.left)) + "R"*(_to_i(node.right))
+  end
+
+  def _to_i(bool)
+    (bool ? 1: 0)
+  end
+
+  def delete(data)
+    # look for node
+    parent = @root
+    node = @root
+    right_child = nil 
+    loop do
+      if data == node.data
+        leaves = direct_leaves(node)
+
+        if leaves == "LR"
+          next
+        else
+          if right_child
+            parent.right = leaves == "R" ? node.right: node.left
+          else
+            parent.left = leaves == "R" ? node.right: node.left
+          end
+        end
+        break
+      else 
+        parent = node
+        node = node.data < data ? node.right: node.left
+        right_child = parent.right == node
+      end
+    end
+  end
 end
+
 
 a = [1, 2, 4, 5, 8, 9, 10]
 t = Tree.new(a)
+puts "Building tree with #{a}"
 t.pretty_print
+puts "Insert 3"
 t.insert(3)
+t.pretty_print
+puts "Delete 3 (no child test)"
+t.delete(3)
+t.pretty_print
+puts "Delete 4 (left child test)"
+puts "Insert 3"
+t.insert(3)
+t.pretty_print
+t.delete(4)
 t.pretty_print
