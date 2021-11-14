@@ -2,8 +2,7 @@ class Node
   
   include Comparable
 
-  attr_reader :data
-  attr_accessor :left, :right
+  attr_accessor :data, :left, :right
 
   def initialize(data)
     @data = data
@@ -90,7 +89,15 @@ class Tree
         leaves = direct_leaves(node)
 
         if leaves == "LR"
-          next
+          if node.right.left
+            node.data = node.right.left.data
+            node.right.left = nil
+          else
+            @root = @root.data == node.data ? node.right : @root; 
+            parent.right = node.right
+            node.right.left = node.left
+            node = node.right
+          end
         else
           if right_child
             parent.right = leaves == "R" ? node.right: node.left
@@ -124,4 +131,10 @@ puts "Insert 3"
 t.insert(3)
 t.pretty_print
 t.delete(4)
+t.pretty_print
+puts "Delete 5 (both child test - replace with left)"
+t.delete(5)
+t.pretty_print
+puts "Delete 8 (both child test - replace with right)"
+t.delete(8)
 t.pretty_print
