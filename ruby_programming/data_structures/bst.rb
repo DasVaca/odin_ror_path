@@ -113,6 +113,29 @@ class Tree
       end
     end
   end
+  
+  def get_level_order_queue(root=@root)
+    queue = [root]
+
+    for node in queue do
+      queue << node.left if node.left
+      queue << node.right if node.right
+    end
+    
+    queue
+  end
+
+  def level_order()
+    nodes = get_level_order_queue()
+
+    if block_given?
+      for node in nodes do
+        yield node
+      end
+    else
+      nodes
+    end
+  end
 end
 
 
@@ -138,3 +161,7 @@ t.pretty_print
 puts "Delete 8 (both child test - replace with right)"
 t.delete(8)
 t.pretty_print
+
+puts "Level order"
+puts "Without block: #{t.level_order.map{|node| node.data}}"
+puts "With    block: #{t.level_order { |node| print "#{node.data*2} "}}"
