@@ -135,6 +135,16 @@ class Tree
     left
   end
 
+  def get_postorder_queue(root=@root)
+    left = root.left ? get_postorder_queue(root.left): []
+    right = root.right ? get_postorder_queue(root.right):[] 
+
+    left.concat right
+    left << root 
+
+    left
+  end
+
   def get_preorder_queue(root=@root)
     queue = [root]
 
@@ -144,24 +154,29 @@ class Tree
     queue
   end
 
-  def yield_array_or_return(array)
-    if block_given?
-      nodes.each {|node| yield node }
+
+  def yield_array_or_return(array, &block)
+    if block
+      array.each {|a| block.call(a)}
     else
-      nodes
+      array
     end
   end
 
-  def level_order()
-    yield_array_or_return get_level_order_queue()
+  def level_order(&block)
+    yield_array_or_return(get_level_order_queue(), &block)
   end
 
-  def inorder()
-    yield_array_or_return get_inorder_queue()
+  def inorder(&block)
+    yield_array_or_return(get_inorder_queue(), &block)
   end
 
-  def preorder()
-    yield_array_or_return get_preorder_queue()
+  def preorder(&block)
+    yield_array_or_return(get_preorder_queue(), &block)
+  end
+
+  def postorder(&block)
+    yield_array_or_return(get_postorder_queue(), &block)
   end
 end
 
@@ -208,4 +223,10 @@ puts "Without block:"
 p t.inorder.map {|n| n.data}
 puts "With    block:"
 t.inorder {|n| print "#{n.data} "}
+
+puts "\nPostorder"
+puts "Without block:"
+p t.postorder.map {|n| n.data}
+puts "With    block:"
+t.postorder {|n| print "#{n.data} "}
 puts ""
