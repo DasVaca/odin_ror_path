@@ -129,16 +129,40 @@ class Tree
     nodes = get_level_order_queue()
 
     if block_given?
-      for node in nodes do
-        yield node
-      end
+      nodes.each { |node| yield node }
+    else
+      nodes
+    end
+  end
+
+  def get_preorder_queue(root=@root)
+    return unless root
+
+    queue = [root]
+
+    left_queue = get_preorder_queue(root.left)
+    right_queue = get_preorder_queue(root.right)
+    
+    queue.concat left_queue if left_queue
+    queue.concat right_queue if right_queue
+
+    queue
+  end
+
+  def preorder()
+    nodes = get_preorder_queue()
+
+    if block_given?
+      nodes.each {|node| yield node }
     else
       nodes
     end
   end
 end
 
-
+# ************************
+#           TEST
+# ***********************
 a = [1, 2, 4, 5, 8, 9, 10]
 t = Tree.new(a)
 puts "Building tree with #{a}"
@@ -163,5 +187,14 @@ t.delete(8)
 t.pretty_print
 
 puts "Level order"
-puts "Without block: #{t.level_order.map{|node| node.data}}"
-puts "With    block: #{t.level_order { |node| print "#{node.data*2} "}}"
+puts "Without block:"
+p t.level_order.map {|n| n.data}
+puts "With    block: "
+t.level_order {|node| print "#{node.data} "}
+
+puts "\nPreorder"
+puts "Without block:"
+p t.preorder.map {|n| n.data}
+puts "With    block:"
+t.preorder {|n| print "#{n.data} "}
+puts ""
