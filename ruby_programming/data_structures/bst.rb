@@ -135,18 +135,37 @@ class Tree
     end
   end
 
-  def get_preorder_queue(root=@root)
-    return unless root
+  def get_inorder_queue(root=@root)
+    left = root.left ? get_inorder_queue(root.left): []
+    right = root.right ? get_inorder_queue(root.right):[] 
 
+    left << root 
+    left.concat right
+
+    left
+  end
+
+  def get_preorder_queue(root=@root)
     queue = [root]
 
-    left_queue = get_preorder_queue(root.left)
-    right_queue = get_preorder_queue(root.right)
+    left = get_preorder_queue(root.left) if root.left
+    right = get_preorder_queue(root.right) if root.right
     
-    queue.concat left_queue if left_queue
-    queue.concat right_queue if right_queue
+    queue.concat left if left
+    queue.concat right if right
 
     queue
+  end
+
+  def inorder()
+    nodes = get_inorder_queue()
+
+    if block_given?
+      nodes.each {|node| yield node }
+    else
+      nodes
+    end
+
   end
 
   def preorder()
@@ -197,4 +216,10 @@ puts "Without block:"
 p t.preorder.map {|n| n.data}
 puts "With    block:"
 t.preorder {|n| print "#{n.data} "}
+
+puts "\nInorder"
+puts "Without block:"
+p t.inorder.map {|n| n.data}
+puts "With    block:"
+t.inorder {|n| print "#{n.data} "}
 puts ""
