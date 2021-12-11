@@ -125,16 +125,6 @@ class Tree
     queue
   end
 
-  def level_order()
-    nodes = get_level_order_queue()
-
-    if block_given?
-      nodes.each { |node| yield node }
-    else
-      nodes
-    end
-  end
-
   def get_inorder_queue(root=@root)
     left = root.left ? get_inorder_queue(root.left): []
     right = root.right ? get_inorder_queue(root.right):[] 
@@ -148,34 +138,30 @@ class Tree
   def get_preorder_queue(root=@root)
     queue = [root]
 
-    left = get_preorder_queue(root.left) if root.left
-    right = get_preorder_queue(root.right) if root.right
+    queue.concat (root.left ? get_preorder_queue(root.left): []) 
+    queue.concat (root.right ? get_preorder_queue(root.right): [])
     
-    queue.concat left if left
-    queue.concat right if right
-
     queue
   end
 
-  def inorder()
-    nodes = get_inorder_queue()
-
+  def yield_array_or_return(array)
     if block_given?
       nodes.each {|node| yield node }
     else
       nodes
     end
+  end
 
+  def level_order()
+    yield_array_or_return get_level_order_queue()
+  end
+
+  def inorder()
+    yield_array_or_return get_inorder_queue()
   end
 
   def preorder()
-    nodes = get_preorder_queue()
-
-    if block_given?
-      nodes.each {|node| yield node }
-    else
-      nodes
-    end
+    yield_array_or_return get_preorder_queue()
   end
 end
 
