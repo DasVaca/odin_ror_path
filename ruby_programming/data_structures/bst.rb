@@ -180,18 +180,33 @@ class Tree
   end
 
   def max_path_length(from, to, count=0)
-    return count if from == to
-    
+    return count if from.nil?
+
     count += 1
 
-    left_count = self.max_path_length(from.left, to, count)
-    right_count = self.max_path_length(from.right, to, count)
-
-    return (left_count > right_count ? left_count : right_count)
+    if to.nil? 
+      left_count = self.max_path_length(from.left, to, count)
+      right_count = self.max_path_length(from.right, to, count)
+      return (left_count > right_count ? left_count : right_count) - 1
+    else
+      if from.data == to.data
+        count - 1
+      else
+        self.max_path_length(from.data < to.data ? from.right : from.left, to, count)
+      end
+    end
   end
 
   def height()
     self.max_path_length(@root, nil)
+  end
+
+  def depth(data)
+    node = self.find(data)
+    if node.nil?
+      raise ArgumentError("#{data} not found.")
+    end
+    max_path_length(@root, node)
   end
 end
 
@@ -245,10 +260,14 @@ p t.postorder.map {|n| n.data}
 puts "With    block:"
 t.postorder {|n| print "#{n.data} "}
 
-puts "\Height method"
+puts "\nHeight method"
 t.insert(11)
 t.insert(12)
 t.insert(17)
 t.insert(19)
 t.pretty_print
-p t.height()
+p "Tree height: #{t.height()}"
+
+puts "\nDepth method"
+p "Depth of 19: #{t.depth(19)}"
+p "Depth of  1: #{t.depth(1)}"
