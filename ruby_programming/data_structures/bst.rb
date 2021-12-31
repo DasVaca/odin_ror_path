@@ -178,6 +178,21 @@ class Tree
   def postorder(&block)
     yield_array_or_return(get_postorder_queue(), &block)
   end
+
+  def max_path_length(from, to, count=0)
+    return count if from == to
+    
+    count += 1
+
+    left_count = self.max_path_length(from.left, to, count)
+    right_count = self.max_path_length(from.right, to, count)
+
+    return (left_count > right_count ? left_count : right_count)
+  end
+
+  def height()
+    self.max_path_length(@root, nil)
+  end
 end
 
 # ************************
@@ -229,4 +244,11 @@ puts "Without block:"
 p t.postorder.map {|n| n.data}
 puts "With    block:"
 t.postorder {|n| print "#{n.data} "}
-puts ""
+
+puts "\Height method"
+t.insert(11)
+t.insert(12)
+t.insert(17)
+t.insert(19)
+t.pretty_print
+p t.height()
