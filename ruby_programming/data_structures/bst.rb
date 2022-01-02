@@ -37,7 +37,9 @@ class Tree
   end 
 
   def find(data, root=@root)
-    return nil unless root
+    if root.nil?
+      raise ArgumentError("#{data} not found.")
+    end
 
     if root.data == data
       root
@@ -179,34 +181,34 @@ class Tree
     yield_array_or_return(get_postorder_queue(), &block)
   end
 
-  def max_path_length(from, to, count=0)
-    return count if from.nil?
-
-    count += 1
-
-    if to.nil? 
-      left_count = self.max_path_length(from.left, to, count)
-      right_count = self.max_path_length(from.right, to, count)
-      return (left_count > right_count ? left_count : right_count) - 1
+  def max_path_down_to(from, to, count=0)
+    return count-1 if from.nil?
+    
+    if to.nil?
+      left_count = max_path_down_to(from.left, to, count + 1)
+      right_count = max_path_down_to(from.right, to, count + 1)
+      return (left_count > right_count ? left_count : right_count)
     else
-      if from.data == to.data
-        count - 1
-      else
-        self.max_path_length(from.data < to.data ? from.right : from.left, to, count)
-      end
+      return count if from.data == to.data
+      from = from.data > to.data ? from.left: from.right
+      self.max_path_down_to(from, to, count + 1)
     end
   end
 
-  def height()
-    self.max_path_length(@root, nil)
+  def height(data)
+    node = self.find(data)
+
+    max_path_down_to(node, nil)
   end
 
   def depth(data)
-    node = self.find(data)
-    if node.nil?
-      raise ArgumentError("#{data} not found.")
+    traveler = @root
+    edges_count = 0
+    while !traveler.nil? && traveler.data != data do
+      traveler = (traveler.data > data ? traveler.left: traveler.right)
+      edges_count += 1
     end
-    max_path_length(@root, node)
+    edges_count
   end
 end
 
@@ -266,7 +268,8 @@ t.insert(12)
 t.insert(17)
 t.insert(19)
 t.pretty_print
-p "Tree height: #{t.height()}"
+p "Height of 12: #{t.height(12)}"
+p "Height of 10: #{t.height(10)}"
 
 puts "\nDepth method"
 p "Depth of 19: #{t.depth(19)}"
