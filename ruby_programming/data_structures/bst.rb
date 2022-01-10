@@ -210,6 +210,15 @@ class Tree
     end
     edges_count
   end
+
+  def balanced?(root=@root)
+    return true if root.nil?
+
+    left = self.max_path_down_to(root.left, nil)
+    right = self.max_path_down_to(root.right, nil)
+
+    (left - right).abs > 1 ? false : self.balanced?(root.right) && self.balanced?(root.left)
+  end
 end
 
 # ************************
@@ -274,3 +283,13 @@ p "Height of 10: #{t.height(10)}"
 puts "\nDepth method"
 p "Depth of 19: #{t.depth(19)}"
 p "Depth of  1: #{t.depth(1)}"
+
+puts "\nBalanced"
+t.pretty_print
+p "Is balanced? #{t.balanced?}"
+t.delete(11)
+t.delete(12)
+t.delete(17)
+t.delete(19)
+t.pretty_print
+p "Is balanced? #{t.balanced?}"
