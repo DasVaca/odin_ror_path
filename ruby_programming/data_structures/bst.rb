@@ -219,77 +219,8 @@ class Tree
 
     (left - right).abs > 1 ? false : self.balanced?(root.right) && self.balanced?(root.left)
   end
+
+  def rebalance
+    @root = self.build_tree_recursive(self.get_inorder_queue.map{|x| x.data}) unless self.balanced?
+  end
 end
-
-# ************************
-#           TEST
-# ***********************
-a = [1, 2, 4, 5, 8, 9, 10]
-t = Tree.new(a)
-puts "Building tree with #{a}"
-t.pretty_print
-puts "Insert 3"
-t.insert(3)
-t.pretty_print
-puts "Delete 3 (no child test)"
-t.delete(3)
-t.pretty_print
-puts "Delete 4 (left child test)"
-puts "Insert 3"
-t.insert(3)
-t.pretty_print
-t.delete(4)
-t.pretty_print
-puts "Delete 5 (both child test - replace with left)"
-t.delete(5)
-t.pretty_print
-puts "Delete 8 (both child test - replace with right)"
-t.delete(8)
-t.pretty_print
-
-puts "Level order"
-puts "Without block:"
-p t.level_order.map {|n| n.data}
-puts "With    block: "
-t.level_order {|node| print "#{node.data} "}
-
-puts "\nPreorder"
-puts "Without block:"
-p t.preorder.map {|n| n.data}
-puts "With    block:"
-t.preorder {|n| print "#{n.data} "}
-
-puts "\nInorder"
-puts "Without block:"
-p t.inorder.map {|n| n.data}
-puts "With    block:"
-t.inorder {|n| print "#{n.data} "}
-
-puts "\nPostorder"
-puts "Without block:"
-p t.postorder.map {|n| n.data}
-puts "With    block:"
-t.postorder {|n| print "#{n.data} "}
-
-puts "\nHeight method"
-t.insert(11)
-t.insert(12)
-t.insert(17)
-t.insert(19)
-t.pretty_print
-p "Height of 12: #{t.height(12)}"
-p "Height of 10: #{t.height(10)}"
-
-puts "\nDepth method"
-p "Depth of 19: #{t.depth(19)}"
-p "Depth of  1: #{t.depth(1)}"
-
-puts "\nBalanced"
-t.pretty_print
-p "Is balanced? #{t.balanced?}"
-t.delete(11)
-t.delete(12)
-t.delete(17)
-t.delete(19)
-t.pretty_print
-p "Is balanced? #{t.balanced?}"
